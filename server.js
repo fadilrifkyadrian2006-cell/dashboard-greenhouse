@@ -194,7 +194,7 @@ function applyAutoRules() {
 }
 
 function recommendation(bed) {
-  if (!bed.issues.length) return "Kondisi stabil. Tidak ada tindakan khusus.";
+  if (!bed.issues.length) return "Kondisi stabil. Semua parameter berada pada rentang ideal.";
   const actions = [];
   if (bed.soilMoisture < IDEAL.soilMoisture.min) actions.push("pompa air ON");
   if (bed.soilMoisture > IDEAL.soilMoisture.max) actions.push("kurangi irigasi");
@@ -243,7 +243,13 @@ function updateData() {
     bed.temperature = clamp(bed.temperature + rand(-0.15, 0.24), 20, 38);
     bed.airHumidity = clamp(bed.airHumidity + rand(-0.55, 0.45), 35, 92);
     bed.soilMoisture = clamp(bed.soilMoisture + rand(-0.65, 0.25), 15, 92);
-    bed.light = clamp(bed.light + rand(-28, 28), 120, 1050);
+    // Intensitas cahaya dibuat konsisten dengan status Grow Light.
+    // Grow Light OFF: cahaya turun bertahap; Grow Light ON: cahaya meningkat.
+    if (actuators.growLight) {
+      bed.light = clamp(bed.light + (bed.light < 520 ? rand(75, 130) : rand(16, 45)), 120, 1050);
+    } else {
+      bed.light = clamp(bed.light - rand(18, 42), 120, 1050);
+    }
 
     if (actuators.pump) {
       bed.soilMoisture += bed.soilMoisture < 45 ? rand(3.4, 6.0) : rand(0.4, 1.2);
@@ -259,7 +265,6 @@ function updateData() {
       bed.temperature -= rand(0.12, 0.5);
     }
     if (actuators.growLight) {
-      bed.light += bed.light < 520 ? rand(75, 130) : rand(16, 45);
       bed.temperature += rand(0.05, 0.25);
     }
 
@@ -268,7 +273,7 @@ function updateData() {
       bed.temperature += (27 - bed.temperature) * 0.08;
       bed.airHumidity += (68 - bed.airHumidity) * 0.07;
       bed.soilMoisture += (61 - bed.soilMoisture) * 0.05;
-      bed.light += (760 - bed.light) * 0.07;
+      bed.light += ((actuators.growLight ? 760 : 520) - bed.light) * 0.05;
     }
 
     bed.temperature = round1(clamp(bed.temperature, 20, 38));
