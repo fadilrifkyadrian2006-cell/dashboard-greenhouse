@@ -795,7 +795,7 @@ td { color: #344054; font-weight: 650; }
             <p class="eyebrow">Trend realtime</p>
             <h2>Rata-rata Parameter</h2>
           </div>
-          <span class="badge live">Live · update ±2,5 detik</span>
+          <span class="badge live">Live · update ±0.06 detik</span>
         </div>
         <div class="chart-note">
           <b>Sumbu X</b>: waktu update data · <b>Sumbu Y</b>: skala relatif 0–100% tiap parameter.
@@ -1357,7 +1357,7 @@ function startLocalFallback() {
   initLocalReadings();
   renderAll({ readings: state.readings, summary: state.summary, history: state.history });
   if (localTimer) clearInterval(localTimer);
-  localTimer = setInterval(localStep, 2500);
+  localTimer = setInterval(localStep, 60);
 }
 
 async function setMode(mode) {
